@@ -2,6 +2,8 @@ import axios from "axios";
 import FormData from "form-data";
 import fetch from "node-fetch";
 import { config } from "../config/env.js";
+import { LimitsService } from "./limitsService.js";
+import { validateFileAgainstLimits } from "../utils/validateFileLimits.js";
 
 export class UploadService {
   static async uploadFile({ s3Url, chatId, fileDescription, userKey1 }) {
@@ -14,8 +16,8 @@ export class UploadService {
       const buffer = await response.buffer();
       const fileName = s3Url.split("/").pop() || "upload.bin";
 
-       // Step 2: Get limits from Genesys
-       const limits = await GenesysLimitsService.getLimits(chatId);
+       // Step 2: Get limits from 
+       const limits = await LimitsService.getLimits(chatId);
 
         // Step 3: Validate file against limits
         validateFileAgainstLimits(limits, fileName, buffer);

@@ -14,7 +14,13 @@ export class UploadService {
       const buffer = await response.buffer();
       const fileName = s3Url.split("/").pop() || "upload.bin";
 
-      // Step 2: Prepare form-data
+       // Step 2: Get limits from Genesys
+       const limits = await GenesysLimitsService.getLimits(chatId);
+
+        // Step 3: Validate file against limits
+        validateFileAgainstLimits(limits, fileName, buffer);
+
+      // Step 4: Prepare form-data
       const form = new FormData();
       form.append("userId", config.userId);
       form.append("secureKey", config.secureKey);
@@ -28,7 +34,7 @@ export class UploadService {
         form.append("userData[userKey1]", userKey1);
       }
 
-      // Step 3: Send request to Server
+      // Step 5: Send request to Server
       const url = `${config.baseUrl}/{{server}}/2/chat/${config.serviceName}/${chatId}/file`;
 
       const result = await axios.post(url, form, {
